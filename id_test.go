@@ -10,30 +10,33 @@ import (
 var TestIDs = []struct {
 	timestamp   int64
 	entropy     uint8
-	counter     uint8
 	generatorID uint8
+	counter     uint8
 }{
-	{time.Now().Unix(), 0xff, 0, 0},
-	{0, 0x0f, 0, 0},
-	{1, 0xf0, 0, 0},
-	{0xfffffffffffffff, 255, 255, 255},
-	{0x000000000000000, 0, 0, 0},
-	{0xffffffff0000000, 0, 0, 0},
-	{0x10000000fffffff, 0, 0, 0},
-	{0x01000000fffffff, 0, 0, 0},
-	{0x00100000fff00ff, 0, 0, 1},
-	{0x00010000fffff00, 0, 1, 1},
-	{0x000010001234567, 1, 1, 1},
-	{0x0000010089abcde, 255, 255, 255},
-	{0x00000010fffffff, 255, 255, 255},
-	{0x0000000100fffff, 15, 15, 15},
+	{time.Now().UnixMilli(), 0xff, 0, 0},
+	{0, 0x0f, 0, 1},
+	{1, 0xf0, 1, 2},
+	{0xfffffffffffffff, 255, 2, 3},
+	{0x000000000000000, 0, 3, 4},
+	{0xffffffff0000000, 0, 0, 7},
+	{0x10000000fffffff, 0, 1, 8},
+	{0x01000000fffffff, 0, 2, 15},
+	{0x00100000fff00ff, 0, 3, 16},
+	{0x00010000fffff00, 0, 0, 31},
+	{0x000010001234567, 1, 1, 32},
+	{0x0000010089abcde, 255, 2, 63},
+	{0x00000010fffffff, 255, 3, 63},
+	{0x0000000100fffff, 15, 0, 63},
 }
 
 func TestInitID(t *testing.T) {
 	for _, fields := range TestIDs {
 		c := fields
-		id := InitUID(c.timestamp, c.entropy, c.counter, c.generatorID)
-		expectedTS := c.timestamp & 0x000000ffffffffff
+		id, err := InitUID(c.timestamp, c.entropy, c.generatorID, c.counter)
+		if err != nil {
+			t.FailNow()
+		}
+		expectedTS := c.timestamp & 0x0000ffffffffffff
 		// Confirm value with UID.methods
 		assert.Equal(t, expectedTS, id.Timestamp())
 		assert.Equal(t, c.entropy, id.Entropy())
@@ -48,7 +51,7 @@ func TestIntConversion(t *testing.T) {
 		// original UID
 		// interger: originals' integer representaion
 		// uid: recovered UID from integer
-		original := InitUID(f.timestamp, f.entropy, f.counter, f.generatorID)
+		original, _ := InitUID(f.timestamp, f.entropy, f.generatorID, f.counter)
 
 		integer := original.ToInt()
 		uid := FromInt(integer)
@@ -65,7 +68,7 @@ func TestStringConversion(t *testing.T) {
 	for _, fields := range TestIDs {
 		f := fields
 
-		original := InitUID(f.timestamp, f.entropy, f.counter, f.generatorID)
+		original, _ := InitUID(f.timestamp, f.entropy, f.generatorID, f.counter)
 		parsed, err := Parse(original.String())
 
 		if !assert.Nil(t, err) {
