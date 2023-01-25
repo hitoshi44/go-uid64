@@ -7,7 +7,7 @@ import (
 )
 
 func TestGen(t *testing.T) {
-
+	// Just generate UID.
 	g, err := NewGenerator(0)
 	assert.Nil(t, err)
 	i := 0

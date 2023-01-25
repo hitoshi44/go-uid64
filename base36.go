@@ -7,6 +7,10 @@ import (
 	"unsafe"
 )
 
+// This file is for base36 enc/dec stuff.
+// For now, it just use golang std's facility to do that.
+// Improvement is needed.
+
 // TODO: refactor to more efficient way.
 func toBase36(uid UID) string {
 	buf := make([]byte, 13)
