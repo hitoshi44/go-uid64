@@ -19,7 +19,11 @@ func (uid *UID) Scan(src interface{}) error {
 		// followed github.com/google/uuid
 		return nil
 	case int64:
-		*uid = FromInt(src)
+		res, err := FromInt(src)
+		if err != nil {
+			return err
+		}
+		*uid = res
 	case string:
 		parsed, err := Parse(src)
 		if err != nil {
@@ -35,16 +39,6 @@ func (uid *UID) Scan(src interface{}) error {
 // Implementation sort.Interface for convinience
 type UID64Slice []UID
 
-func (x UID64Slice) Len() int      { return len(x) }
-func (x UID64Slice) Swap(i, j int) { x[i], x[j] = x[j], x[i] }
-func (x UID64Slice) Less(i, j int) bool {
-	//TODO: Is there more efficient way?
-	a, b := x[i], x[j]
-	for idx := range a {
-		if a[idx] == b[idx] {
-			continue
-		}
-		return a[idx] < b[idx]
-	}
-	return false
-}
+func (x UID64Slice) Len() int           { return len(x) }
+func (x UID64Slice) Less(i, j int) bool { return x[i] < x[j] }
+func (x UID64Slice) Swap(i, j int)      { x[i], x[j] = x[j], x[i] }

@@ -1,6 +1,7 @@
 package uid64
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -16,9 +17,9 @@ var TestIDs = []struct {
 	{time.Now().UnixMilli(), 0xff, 0, 0},
 	{0, 0x0f, 0, 1},
 	{1, 0xf0, 1, 2},
-	{0xfffffffffffffff, 255, 2, 3},
+	{0x7ffffffffffffff, 255, 2, 3},
 	{0x000000000000000, 0, 3, 4},
-	{0xffffffff0000000, 0, 0, 7},
+	{0x8fffffff0000000, 0, 0, 7},
 	{0x10000000fffffff, 0, 1, 8},
 	{0x01000000fffffff, 0, 2, 15},
 	{0x00100000fff00ff, 0, 3, 16},
@@ -29,14 +30,18 @@ var TestIDs = []struct {
 	{0x0000000100fffff, 15, 0, 63},
 }
 
-func TestInitID(t *testing.T) {
+func TestInitUID(t *testing.T) {
 	for _, fields := range TestIDs {
 		c := fields
+
+		// InitUID and prepare expected timestamp
 		id, err := InitUID(c.timestamp, c.entropy, c.generatorID, c.counter)
 		if err != nil {
+			fmt.Println(err)
 			t.FailNow()
 		}
 		expectedTS := c.timestamp & 0x0000ffffffffffff
+
 		// Confirm value with UID.methods
 		assert.Equal(t, expectedTS, id.Timestamp())
 		assert.Equal(t, c.entropy, id.Entropy())
@@ -48,14 +53,16 @@ func TestInitID(t *testing.T) {
 func TestIntConversion(t *testing.T) {
 	for _, fields := range TestIDs {
 		f := fields
+
 		// original UID
 		// interger: originals' integer representaion
 		// uid: recovered UID from integer
 		original, _ := InitUID(f.timestamp, f.entropy, f.generatorID, f.counter)
-
 		integer := original.ToInt()
-		uid := FromInt(integer)
+		uid, err := FromInt(integer)
+		assert.Nil(t, err)
 
+		// Confirm restored from int is same to the original one.
 		assert.Equal(t, integer, uid.ToInt())
 		assert.Equal(t, original.Timestamp(), uid.Timestamp())
 		assert.Equal(t, original.Entropy(), uid.Entropy())
@@ -68,12 +75,14 @@ func TestStringConversion(t *testing.T) {
 	for _, fields := range TestIDs {
 		f := fields
 
+		// prepare values
 		original, _ := InitUID(f.timestamp, f.entropy, f.generatorID, f.counter)
 		parsed, err := Parse(original.String())
-
 		if !assert.Nil(t, err) {
 			t.FailNow()
 		}
+
+		// Confirm restored form int is same to the original one.
 		assert.Equal(t, original.String(), parsed.String())
 		assert.Equal(t, original.Timestamp(), parsed.Timestamp())
 		assert.Equal(t, original.Entropy(), parsed.Entropy())

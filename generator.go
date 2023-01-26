@@ -61,7 +61,7 @@ func (g *Generator) gen() (UID, error) {
 	now := time.Now().UnixMilli()
 	if now == g.timestamp {
 		if g.counter == 0xff {
-			return UID{}, errors.New("exceed gen max ratio")
+			return 0, errors.New("exceed gen max ratio")
 		}
 		g.counter++
 	} else {
@@ -69,7 +69,7 @@ func (g *Generator) gen() (UID, error) {
 	}
 	entropy, err := read(g.rng)
 	if err != nil {
-		return UID{}, err
+		return 0, err
 	}
 	return initUID(now, entropy, g.counter, g.genid), nil
 }

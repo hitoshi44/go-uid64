@@ -33,7 +33,7 @@ func TestSQLInterface(t *testing.T) {
 	err = rows.Scan(&selectedID)
 	assert.Nil(t, err)
 
-	// Compare 2 ids.
+	// Check 2 ids equal.
 	assert.Equal(t, id, selectedID)
 	assert.Equal(t, id.String(), selectedID.String())
 }
@@ -42,24 +42,24 @@ func TestSortInterface(t *testing.T) {
 	g, _ := NewGenerator(1)
 
 	// Test IsSorted for sort.Interface
-	check_sorted := make(UID64Slice, 0, 8*128)
+	checkSorted := make(UID64Slice, 0, 256)
 	for i := 0; i < 256; i++ {
-		// Sleep to generate uids at each milli sec for sequentiality.
+		// Sleep with each generation for a milli sec for make sequentially.
 		time.Sleep(1 * time.Millisecond)
 		id, err := g.GenDanger()
 		assert.Nil(t, err)
-		check_sorted = append(check_sorted, id)
+		checkSorted = append(checkSorted, id)
 	}
-	assert.True(t, sort.IsSorted(check_sorted))
+	assert.True(t, sort.IsSorted(checkSorted))
 
 	// Test Sort for sort.Interface
-	check_sorted = make(UID64Slice, 0)
+	checkSorted = make(UID64Slice, 0, 128)
 	for i := 0; i < 128; i++ {
-		// Without time sleep, it ordered randomly thanks to /dev/urandom
+		// Without a sleep, UIDs are ordered randomly thanks to /dev/urandom
 		id, err := g.GenDanger()
 		assert.Nil(t, err)
-		check_sorted = append(check_sorted, id)
+		checkSorted = append(checkSorted, id)
 	}
-	sort.Sort(check_sorted)
-	assert.True(t, sort.IsSorted(check_sorted))
+	sort.Sort(checkSorted)
+	assert.True(t, sort.IsSorted(checkSorted))
 }
