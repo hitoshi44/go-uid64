@@ -34,15 +34,14 @@ handle(err)
 
 Cases this repository is for
 
- - Sortable, Clock, Random Unique Indentifier
- - Inserted into sql DB as int64 (Long-Int).
- - Thus, SQL Insertion friendly. (it is ordered native integer)
- - Thread-safe, with ID for each genarator. (up to 4)
- - Base36 String. Short, Network friendly string representation.
+ - Need Sortable, Clock, Random Unique Indentifier
+ - Need DB Insertion friendly ID ( orederd, native Long-Int)
+ - Want short string representation (Base36)
+ - Want Thread-safe, Unieque ID over all generators (up to 4) 
 
 Cases it's NOT for
 
  - Will generate more than 128 per a milli-sec.
- - More than 4 distributed generators.
+ - Want more than 4 distributed generators.
  - Want to follow RFC.
 
