@@ -45,3 +45,29 @@ Cases it's NOT for
  - Want more than 4 distributed generators.
  - Want to follow RFC.
 
+## Benchmarks
+
+With my laptop comparing ID-generation to google's UUID library, this repository is 
+ - more than 5x faster
+ - 16x smaller allocation size
+ - same allocation count (1 times) 
+
+```:google/uuid
+goos: linux
+goarch: amd64
+pkg: github.com/hitoshi44/go-uid64
+cpu: AMD Ryzen 5 3500U with Radeon Vega Mobile Gfx  
+BenchmarkGoogleUUIDNew-8   	 1963202	       621.9 ns/op	      16 B/op	       1 allocs/op
+PASS
+ok  	github.com/hitoshi44/go-uid64	1.813s
+```
+
+```:uuid
+goos: linux
+goarch: amd64
+pkg: github.com/hitoshi44/go-uid64
+cpu: AMD Ryzen 5 3500U with Radeon Vega Mobile Gfx  
+BenchmarkUID64Gen-8   	 8579986	       122.7 ns/op	       1 B/op	       1 allocs/op
+PASS
+ok  	github.com/hitoshi44/go-uid64	1.206s
+```
